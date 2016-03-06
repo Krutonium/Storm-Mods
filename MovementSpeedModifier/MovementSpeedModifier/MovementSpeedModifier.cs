@@ -59,6 +59,7 @@ namespace MovementSpeedModifier
                 ModConfig = JsonConvert.DeserializeObject<Config>(Encoding.UTF8.GetString(File.ReadAllBytes(ConfigLocation)));
                 Console.WriteLine("The config file for MovementSpeedModifier has been loaded.\n\tDiagonalFix: {0}, PlayerWalkingSpeed: {1}, PlayerRunningSpeed: {2}", ModConfig.EnableDiagonalMovementSpeedFix, ModConfig.PlayerWalkingSpeed, ModConfig.PlayerRunningSpeed);
             }
+            Console.WriteLine("MovementSpeedModifier Initialization Completed");
         }
 
         [Subscribe]
