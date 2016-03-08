@@ -55,7 +55,6 @@ namespace FishingMod
                 if (!BeganFishingGame && UpdateIndex > 15)
                 {
                     //Do these things once per fishing minigame, 1/4 second after it updates
-                    Console.WriteLine("WINNING NOW");
 
                     Bobber.Difficulty *= ModConfig.FishDifficultyMultiplier;
                     Bobber.Difficulty += ModConfig.FishDifficultyAdder;
@@ -75,8 +74,6 @@ namespace FishingMod
 
                 if (UpdateIndex < 20)
                     UpdateIndex++;
-
-                Console.Write(UpdateIndex + " > ");
 
                 if (ModConfig.AlwaysPerfect)
                     Bobber.Perfect = true;

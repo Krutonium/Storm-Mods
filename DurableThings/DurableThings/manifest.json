@@ -1,0 +1,8 @@
+﻿{
+    "displayName": "Durable Things",
+    "author": "Zoryn Aaron",
+    "version": "1_STORM",
+    "description": "Alters durable things based on Config file.",
+
+    "assemblyFileName": "DurableThings.dll"
+}
