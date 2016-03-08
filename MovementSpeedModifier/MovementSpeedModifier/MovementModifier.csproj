@@ -7,8 +7,8 @@
     <ProjectGuid>{CC1C6DB7-7259-4280-83F1-766A31DAFEC2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MovementSpeedModifier</RootNamespace>
-    <AssemblyName>MovementSpeedModifier</AssemblyName>
+    <RootNamespace>MovementModifier</RootNamespace>
+    <AssemblyName>MovementModifier</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
