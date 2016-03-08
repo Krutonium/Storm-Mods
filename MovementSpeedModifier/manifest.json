@@ -1,0 +1,8 @@
+{
+    "displayName": "Movement Speed Modifier",
+    "author": "Zoryn Aaron",
+    "version": "1_STORM",
+    "description": "Alters movement things based on Config file.",
+
+    "assemblyFileName": "MovementSpeedModifier.dll"
+}
