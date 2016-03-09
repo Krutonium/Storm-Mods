@@ -17,6 +17,7 @@ namespace ForceShowConsole
         static extern bool AllocConsole();
         public static Thread ConsoleThread;
 
+        [Subscribe]
         public void Init(InitializeEvent @event)
         {
             AllocConsole();
