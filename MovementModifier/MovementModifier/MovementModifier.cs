@@ -20,7 +20,6 @@ using Storm;
 using Storm.ExternalEvent;
 using Storm.StardewValley;
 using Storm.StardewValley.Event;
-using Storm.StardewValley.Event.Farmer;
 using Storm.StardewValley.Wrapper;
 
 namespace MovementModifier
@@ -40,7 +39,7 @@ namespace MovementModifier
             ModConfig = new MovementConfig();
             ModConfig = (MovementConfig) Config.InitializeConfig(Config.GetBasePath(this), ModConfig);
 
-            Console.WriteLine("MovementSpeedModifier Mod by Zoryn => Initialization Completed");
+            Console.WriteLine("MovementModifier by Zoryn => Initialization Completed");
         }
 
         [Subscribe]

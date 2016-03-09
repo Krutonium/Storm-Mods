@@ -1,14 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.IO;
-using System.Linq;
-using System.Net.Mime;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Microsoft.Xna.Framework;
 using Storm;
 using Storm.ExternalEvent;
 using Storm.StardewValley;
@@ -29,6 +20,7 @@ namespace FishingMod
 
         public static bool BeganFishingGame { get; protected set; }
         public static int UpdateIndex { get; protected set; }
+        public static bool HitZero { get; protected set; }
 
         public static Farmer Player => StaticGameContext.WrappedGame.Player;
 
@@ -49,7 +41,7 @@ namespace FishingMod
             if (ActiveMenu == null)
                 return;
 
-            if (ActiveMenu.Expose() is BobberBarAccessor)
+            if (ActiveMenu.Expose() is BobberBarAccessor && !HitZero)
             {
                 //Begin fishing game
                 if (!BeganFishingGame && UpdateIndex > 15)
@@ -57,7 +49,7 @@ namespace FishingMod
                     //Do these things once per fishing minigame, 1/4 second after it updates
 
                     Bobber.Difficulty *= ModConfig.FishDifficultyMultiplier;
-                    Bobber.Difficulty += ModConfig.FishDifficultyAdder;
+                    Bobber.Difficulty += ModConfig.FishDifficultyAdditive;
 
                     if (ModConfig.AlwaysFindTreasure)
                         Bobber.Treasure = true;
@@ -78,6 +70,9 @@ namespace FishingMod
                 if (ModConfig.AlwaysPerfect)
                     Bobber.Perfect = true;
 
+                if (Bobber.DistanceFromCatching <= 0.05f)
+                    HitZero = true;
+
                 if (!Bobber.BobberInBar)
                     Bobber.DistanceFromCatching += ModConfig.CatchPerTickAddition;
             }
@@ -86,6 +81,69 @@ namespace FishingMod
                 //End fishing game
                 BeganFishingGame = false;
                 UpdateIndex = 0;
+                HitZero = false;
+            }
+        }
+
+        public void DoneFishing(BeforeDoneFishingEvent @event)
+        {
+            if (@event.ConsumeBaitAndTackle)
+            {
+                if (ModConfig.BaitTackleSettingsApplyOnlyToTrash)
+                    return;
+                RegenBait(@event.Rod);
+                RegenTackle(@event.Rod);
+            }
+        }
+
+        [Subscribe]
+        public void BeforePullFishFromWaterCallback(BeforePullFishFromWaterEvent @event)
+        {
+            FishingRod f = @event.Rod;
+
+            if (ModConfig.BaitTackleSettingsApplyOnlyToTrash)
+            {
+                if (@event.FishDifficulty == 0 && @event.FishQuality == 0 && @event.FishSize == -1)
+                {
+                    //Fished up trash
+                    RegenBait(f);
+                    RegenTackle(f);
+                }
+            }
+            else
+            {
+                RegenBait(f);
+                RegenTackle(f);
+            }
+        }
+
+        void RegenBait(FishingRod f)
+        {
+            if (f.Attachments[0] != null)
+            {
+                if (ModConfig.InfiniteBait)
+                    f.Attachments[0].Stack += 1;
+            }
+        }
+
+        void RegenTackle(FishingRod f)
+        {
+            if (f.Attachments[1] != null)
+            {
+                if (f.Attachments[1].Expose() != null)
+                {
+                    if (ModConfig.InfiniteTackle)
+                    {
+                        f.Attachments[1].Scale += new Vector2(0, 0.05f);
+                        return;
+                    }
+
+                    f.Attachments[1].Scale += new Vector2(0, ModConfig.TackleDurabilityAdditive);
+
+                    f.Attachments[1].Scale *= new Vector2(1, ModConfig.TackleDurabilityMultiplier);
+
+                    f.Attachments[1].Scale = new Vector2(f.Attachments[1].Scale.X.Clamp(0, 1), f.Attachments[1].Scale.Y.Clamp(0, 1));
+                }
             }
         }
     }
@@ -97,8 +155,14 @@ namespace FishingMod
         public bool InstantCatchFish { get; set; }
         public bool InstantCatchTreasure { get; set; }
         public float FishDifficultyMultiplier { get; set; }
-        public float FishDifficultyAdder { get; set; }
+        public float FishDifficultyAdditive { get; set; }
         public float CatchPerTickAddition { get; set; }
+
+        public bool BaitTackleSettingsApplyOnlyToTrash { get; set; }
+        public bool InfiniteTackle { get; set; }
+        public bool InfiniteBait { get; set; }
+        public float TackleDurabilityAdditive { get; set; }
+        public float TackleDurabilityMultiplier { get; set; }
 
         public override Config GenerateBaseConfig(Config baseConfig)
         {
@@ -108,8 +172,23 @@ namespace FishingMod
             InstantCatchTreasure = false;
             CatchPerTickAddition = 2 / 1000f;
             FishDifficultyMultiplier = 1;
-            FishDifficultyAdder = 0;
+            FishDifficultyAdditive = 0;
+            BaitTackleSettingsApplyOnlyToTrash = true;
+            InfiniteTackle = true;
+            InfiniteBait = true;
+            TackleDurabilityMultiplier = 1;
+            TackleDurabilityAdditive = 0;
             return this;
+        }
+    }
+
+    public static class Extensions
+    {
+        public static float Clamp(this float value, float min, float max)
+        {
+            if (value <= min) { return min; }
+            if (value >= max) { return max; }
+            return value;
         }
     }
 }

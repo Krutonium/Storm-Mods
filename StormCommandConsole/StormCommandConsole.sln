@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovementModifier", "MovementSpeedModifier\MovementModifier.csproj", "{CC1C6DB7-7259-4280-83F1-766A31DAFEC2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StormCommandConsole", "StormCommandConsole\StormCommandConsole.csproj", "{BC113B89-61E2-4C95-AD42-AE4FED22B8E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CC1C6DB7-7259-4280-83F1-766A31DAFEC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CC1C6DB7-7259-4280-83F1-766A31DAFEC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CC1C6DB7-7259-4280-83F1-766A31DAFEC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CC1C6DB7-7259-4280-83F1-766A31DAFEC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC113B89-61E2-4C95-AD42-AE4FED22B8E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC113B89-61E2-4C95-AD42-AE4FED22B8E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC113B89-61E2-4C95-AD42-AE4FED22B8E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC113B89-61E2-4C95-AD42-AE4FED22B8E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,7 +11,6 @@ using Storm.ExternalEvent;
 using Storm.StardewValley;
 using Storm.StardewValley.Accessor;
 using Storm.StardewValley.Event;
-using Storm.StardewValley.Event.Game;
 using Storm.StardewValley.Wrapper;
 
 namespace StormTestMod
