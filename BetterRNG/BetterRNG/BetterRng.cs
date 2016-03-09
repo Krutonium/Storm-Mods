@@ -76,7 +76,22 @@ namespace BetterRNG
             else
                 Console.WriteLine("Could not set weather because the config values do not add up to 1.0 ({0}).\n\tPlease correct this error in: " + ModConfig.ConfigLocation, weatherConfig.Sum());
 
-            Console.WriteLine("Daily Luck: " + @event.Root.DailyLuck + " | Tomorrow's Weather: " + @event.Root.WeatherForTomorrow);
+            //Console.WriteLine("[Twister] Daily Luck: " + @event.Root.DailyLuck + " | Tomorrow's Weather: " + @event.Root.WeatherForTomorrow);
+        }
+
+        [Subscribe]
+        public void ChatMessageEnteredCallback(ChatMessageEnteredEvent @event)
+        {
+            Command c = Command.ParseCommand(@event.ChatText);
+            if (c.Name == "rlcfg" && c.HasArgs && c.Args[0] == "betterrng")
+            {
+                Console.WriteLine("Reloading the config for BetterRNG by Zoryn");
+                ModConfig = new RngConfig();
+                ModConfig = (RngConfig)Config.InitializeConfig(Config.GetBasePath(this), ModConfig);
+
+                @event.ReturnValue = null;
+                @event.ReturnEarly = true;
+            }
         }
     }
 

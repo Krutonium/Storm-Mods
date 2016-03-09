@@ -80,6 +80,21 @@ namespace MovementModifier
                 @event.ReturnEarly = true;
             }
         }
+
+        [Subscribe]
+        public void ChatMessageEnteredCallback(ChatMessageEnteredEvent @event)
+        {
+            Command c = Command.ParseCommand(@event.ChatText);
+            if (c.Name == "rlcfg" && c.HasArgs && c.Args[0] == "movementmod")
+            {
+                Console.WriteLine("Reloading the config for MovementMod by Zoryn");
+                ModConfig = new MovementConfig();
+                ModConfig = (MovementConfig)Config.InitializeConfig(Config.GetBasePath(this), ModConfig);
+
+                @event.ReturnValue = null;
+                @event.ReturnEarly = true;
+            }
+        }
     }
 
     public class MovementConfig : Config

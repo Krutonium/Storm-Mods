@@ -41,7 +41,7 @@ namespace FishingMod
             if (ActiveMenu == null)
                 return;
 
-            if (ActiveMenu.Expose() is BobberBarAccessor && !HitZero)
+            if (ActiveMenu.IsBobberBar() && !HitZero)
             {
                 //Begin fishing game
                 if (!BeganFishingGame && UpdateIndex > 15)
@@ -85,6 +85,7 @@ namespace FishingMod
             }
         }
 
+        [Subscribe]
         public void DoneFishing(BeforeDoneFishingEvent @event)
         {
             if (@event.ConsumeBaitAndTackle)
@@ -144,6 +145,21 @@ namespace FishingMod
 
                     f.Attachments[1].Scale = new Vector2(f.Attachments[1].Scale.X.Clamp(0, 1), f.Attachments[1].Scale.Y.Clamp(0, 1));
                 }
+            }
+        }
+
+        [Subscribe]
+        public void ChatMessageEnteredCallback(ChatMessageEnteredEvent @event)
+        {
+            Command c = Command.ParseCommand(@event.ChatText);
+            if (c.Name == "rlcfg" && c.HasArgs && c.Args[0] == "fishingmod")
+            {
+                Console.WriteLine("Reloading the config for FishingMod by Zoryn");
+                ModConfig = new FishConfig();
+                ModConfig = (FishConfig)Config.InitializeConfig(Config.GetBasePath(this), ModConfig);
+
+                @event.ReturnValue = null;
+                @event.ReturnEarly = true;
             }
         }
     }
