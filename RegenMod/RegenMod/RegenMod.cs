@@ -64,14 +64,11 @@ namespace RegenMod
         public void ChatMessageEnteredCallback(ChatMessageEnteredEvent @event)
         {
             Command c = Command.ParseCommand(@event.ChatText);
-            if (c.Name == "rlcfg" && c.HasArgs && c.Args[0] == "regenmod")
+            if (c.Name == "rlcfg" && c.HasArgs && (c.Args[0] == "regenmod" || c.Args[0] == "all"))
             {
                 Console.WriteLine("Reloading the config for RegenMod by Zoryn");
                 ModConfig = new RegenConfig();
                 ModConfig = (RegenConfig)Config.InitializeConfig(Config.GetBasePath(this), ModConfig);
-
-                @event.ReturnValue = null;
-                @event.ReturnEarly = true;
             }
         }
     }

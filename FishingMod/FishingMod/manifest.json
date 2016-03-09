@@ -1,7 +1,7 @@
 ﻿{
     "displayName": "Fishing Mod",
     "author": "Zoryn Aaron",
-    "version": "1_STORM",
+    "version": "1.1",
     "description": "Alters fishing things based on Config file.",
 
     "assemblyFileName": "FishingMod.dll"

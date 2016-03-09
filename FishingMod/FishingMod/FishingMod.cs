@@ -88,6 +88,14 @@ namespace FishingMod
         [Subscribe]
         public void DoneFishing(BeforeDoneFishingEvent @event)
         {
+            if (!ModConfig.StaminaLossMultiplier.Equals(1))
+            {
+                //[8 - (@event.LocalPlayer.FishingLevel * 0.1f)] is the hardcoded function in tool use for fishing
+                float loss = (8 - (@event.LocalPlayer.FishingLevel * 0.1f));
+                @event.LocalPlayer.Stamina += loss;
+                @event.LocalPlayer.Stamina -= loss * ModConfig.StaminaLossMultiplier;
+            }
+
             if (@event.ConsumeBaitAndTackle)
             {
                 if (ModConfig.BaitTackleSettingsApplyOnlyToTrash)
@@ -152,14 +160,11 @@ namespace FishingMod
         public void ChatMessageEnteredCallback(ChatMessageEnteredEvent @event)
         {
             Command c = Command.ParseCommand(@event.ChatText);
-            if (c.Name == "rlcfg" && c.HasArgs && c.Args[0] == "fishingmod")
+            if (c.Name == "rlcfg" && c.HasArgs && (c.Args[0] == "fishingmod" || c.Args[0] == "all"))
             {
                 Console.WriteLine("Reloading the config for FishingMod by Zoryn");
                 ModConfig = new FishConfig();
                 ModConfig = (FishConfig)Config.InitializeConfig(Config.GetBasePath(this), ModConfig);
-
-                @event.ReturnValue = null;
-                @event.ReturnEarly = true;
             }
         }
     }
@@ -173,6 +178,7 @@ namespace FishingMod
         public float FishDifficultyMultiplier { get; set; }
         public float FishDifficultyAdditive { get; set; }
         public float CatchPerTickAddition { get; set; }
+        public float StaminaLossMultiplier { get; set; }
 
         public bool BaitTackleSettingsApplyOnlyToTrash { get; set; }
         public bool InfiniteTackle { get; set; }
@@ -187,6 +193,8 @@ namespace FishingMod
             InstantCatchFish = false;
             InstantCatchTreasure = false;
             CatchPerTickAddition = 2 / 1000f;
+            StaminaLossMultiplier = 0.5f;
+
             FishDifficultyMultiplier = 1;
             FishDifficultyAdditive = 0;
             BaitTackleSettingsApplyOnlyToTrash = true;

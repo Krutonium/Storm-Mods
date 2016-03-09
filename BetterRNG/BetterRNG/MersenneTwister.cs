@@ -287,6 +287,20 @@ namespace BetterRNG
         }
 
         /// <summary>
+        /// Returns a pseudo-random bool based off of an array of floats
+        /// </summary>
+        /// <returns></returns>
+        public bool NextComplexBool(float[] f)
+        {
+            return Math.Abs(f.Random()) <= 0.5f;
+        }
+
+        public bool NextBool()
+        {
+            return Math.Abs(NextSingle()) <= 0.5f;
+        }
+
+        /// <summary>
         /// Generates a new pseudo-random <see cref="UInt32"/>.
         /// </summary>
         /// <returns>A pseudo-random <see cref="UInt32"/>.</returns>
