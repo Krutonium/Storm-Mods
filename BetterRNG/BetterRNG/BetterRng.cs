@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using Storm;
 using Storm.ExternalEvent;
 using Storm.StardewValley;
@@ -27,9 +22,12 @@ namespace BetterRNG
         {
             ModConfig = new RngConfig();
             ModConfig = (RngConfig)Config.InitializeConfig(Config.GetBasePath(this), ModConfig);
-            RandomFloats = new float[1024];
+            RandomFloats = new float[256];
             Twister = new MersenneTwister();
-            
+
+            //Destroys the game's built-in random number generator for Twister.
+            @event.Root.Random = Twister;
+
             //Just fills the buffer with junk so that we know everything is good and random.
             RandomFloats.FillFloats();
 
@@ -65,22 +63,46 @@ namespace BetterRNG
 
         public static void DetermineRng(StaticContextEvent @event)
         {
+            //Generate a good set of new random numbers to choose from for daily luck every morning.
             RandomFloats.FillFloats();
-            @event.Root.DailyLuck = RandomFloats.Random();
+            @event.Root.DailyLuck = RandomFloats.Random() / 10;
 
             float[] weatherConfig = new[] { ModConfig.SunnyChance, ModConfig.CloudySnowyChance, ModConfig.RainyChance, ModConfig.StormyChance, ModConfig.HarshSnowyChance };
             if (weatherConfig.Sum() >= 0.99f && weatherConfig.Sum() <= 1.01f)
             {
                 var floats = new[] { ProportionValue.Create(ModConfig.SunnyChance, 0), ProportionValue.Create(ModConfig.CloudySnowyChance, 2), ProportionValue.Create(ModConfig.RainyChance, 1), ProportionValue.Create(ModConfig.StormyChance, 3), ProportionValue.Create(ModConfig.HarshSnowyChance, 5) };
                 @event.Root.WeatherForTomorrow = floats.ChooseByRandom();
-
             }
             else
-                Console.WriteLine("Could not set weather because the config values do not add up to 1.0 ({0}).\n\tPlease correct this error in: " + ModConfig.ConfigLocation, "|" + weatherConfig.Sum());
+                Console.WriteLine("Could not set weather because the config values do not add up to 1.0 ({0}).\n\tPlease correct this error in: " + ModConfig.ConfigLocation, weatherConfig.Sum());
 
             Console.WriteLine("Daily Luck: " + @event.Root.DailyLuck + " | Tomorrow's Weather: " + @event.Root.WeatherForTomorrow);
         }
     }
+
+    public class RngConfig : Config
+    {
+        public bool EnableDailyLuckOverride { get; set; }
+        public bool EnableWeatherOverride { get; set; }
+        public float SunnyChance { get; set; }
+        public float CloudySnowyChance { get; set; }
+        public float RainyChance { get; set; }
+        public float StormyChance { get; set; }
+        public float HarshSnowyChance { get; set; }
+
+        public override Config GenerateBaseConfig(Config baseConfig)
+        {
+            EnableDailyLuckOverride = true;
+            EnableWeatherOverride = true;
+            SunnyChance = 0.60f;
+            CloudySnowyChance = 0.15f;
+            RainyChance = 0.15f;
+            StormyChance = 0.05f;
+            HarshSnowyChance = 0.05f;
+            return this;
+        }
+    }
+
 
     public static class Extensions
     {
@@ -97,7 +119,7 @@ namespace BetterRNG
         public static void FillFloats(this float[] floats)
         {
             for (int i = 0; i < floats.Length; i++)
-                floats[i] = BetterRng.Twister.Next(-100,100) / 1000f;
+                floats[i] = BetterRng.Twister.Next(-100,100) / 100f;
         }
 
         public static T Random<T>(this IEnumerable<T> enumerable)
@@ -109,25 +131,6 @@ namespace BetterRNG
 
             var list = enumerable as IList<T> ?? enumerable.ToList();
             return list.Count == 0 ? default(T) : list[BetterRng.Twister.Next(0, list.Count)];
-        }
-    }
-
-    public class RngConfig : Config
-    {
-        public float SunnyChance { get; set; }
-        public float CloudySnowyChance { get; set; }
-        public float RainyChance { get; set; }
-        public float StormyChance { get; set; }
-        public float HarshSnowyChance { get; set; }
-
-        public override Config GenerateBaseConfig(Config baseConfig)
-        {
-            SunnyChance = 0.60f;
-            CloudySnowyChance = 0.15f;
-            RainyChance = 0.15f;
-            StormyChance = 0.05f;
-            HarshSnowyChance = 0.05f;
-            return this;
         }
     }
 
