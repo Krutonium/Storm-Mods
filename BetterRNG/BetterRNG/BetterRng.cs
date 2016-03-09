@@ -33,6 +33,8 @@ namespace BetterRNG
 
             //Determine base RNG to get everything up and running.
             DetermineRng(@event);
+
+            Console.WriteLine("BetterRng by Zoryn => Initialization Completed");
         }
 
         [Subscribe]

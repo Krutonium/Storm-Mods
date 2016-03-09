@@ -1,7 +1,7 @@
 {
     "displayName": "Movement Modifier",
     "author": "Zoryn Aaron",
-    "version": "1.0",
+    "version": "1.1",
     "description": "Alters movement things based on Config file.",
 
     "assemblyFileName": "MovementModifier.dll"
