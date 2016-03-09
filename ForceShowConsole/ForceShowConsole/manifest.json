@@ -1,0 +1,8 @@
+﻿{
+    "displayName": "Force Show Console",
+    "author": "Zoryn Aaron",
+    "version": "1.0",
+    "description": "Forces the console window to show.",
+
+    "assemblyFileName": "ForceShowConsole.dll"
+}
