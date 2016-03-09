@@ -69,14 +69,14 @@ namespace BetterRNG
             @event.Root.DailyLuck = RandomFloats.Random();
 
             float[] weatherConfig = new[] { ModConfig.SunnyChance, ModConfig.CloudySnowyChance, ModConfig.RainyChance, ModConfig.StormyChance, ModConfig.HarshSnowyChance };
-            if (weatherConfig.Where(x => x > 0).Sum() >= 0.99f && weatherConfig.Where(x => x > 0).Sum() <= 1.01f)
+            if (weatherConfig.Sum() >= 0.99f && weatherConfig.Sum() <= 1.01f)
             {
                 var floats = new[] { ProportionValue.Create(ModConfig.SunnyChance, 0), ProportionValue.Create(ModConfig.CloudySnowyChance, 2), ProportionValue.Create(ModConfig.RainyChance, 1), ProportionValue.Create(ModConfig.StormyChance, 3), ProportionValue.Create(ModConfig.HarshSnowyChance, 5) };
                 @event.Root.WeatherForTomorrow = floats.ChooseByRandom();
 
             }
             else
-                Console.WriteLine("Could not set weather because the config values do not add up to 1.0 ({0}).\n\tPlease correct this error in: " + ModConfig.ConfigLocation, "|" + weatherConfig.Where(x => x > 0).Sum());
+                Console.WriteLine("Could not set weather because the config values do not add up to 1.0 ({0}).\n\tPlease correct this error in: " + ModConfig.ConfigLocation, "|" + weatherConfig.Sum());
 
             Console.WriteLine("Daily Luck: " + @event.Root.DailyLuck + " | Tomorrow's Weather: " + @event.Root.WeatherForTomorrow);
         }
