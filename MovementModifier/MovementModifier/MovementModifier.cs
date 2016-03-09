@@ -45,13 +45,20 @@ namespace MovementModifier
         [Subscribe]
         public void UpdateCallback(PreUpdateEvent @event)
         {
-            if (ModConfig.EnableRunningSpeedOverride && Player.Running)
-                Player.AddedSpeed = ModConfig.PlayerRunningSpeed;
-            else if (ModConfig.EnableWalkingSpeedOverride && !Player.Running)
-                Player.AddedSpeed = ModConfig.PlayerWalkingSpeed;
+            if (@event.Root.CurrentLocation?.CurrentEvent?.Expose() != null)
+            {
+                Player.AddedSpeed = 0;
+            }
+            else
+            {
+                if (ModConfig.EnableRunningSpeedOverride && Player.Running)
+                    Player.AddedSpeed = ModConfig.PlayerRunningSpeed;
+                else if (ModConfig.EnableWalkingSpeedOverride && !Player.Running)
+                    Player.AddedSpeed = ModConfig.PlayerWalkingSpeed;
 
-            if (ModConfig.EnableDiagonalMovementSpeedFix)
-                Player.MovementDirections.Clear();
+                if (ModConfig.EnableDiagonalMovementSpeedFix)
+                    Player.MovementDirections.Clear();
+            }
         }
 
         [Subscribe]
