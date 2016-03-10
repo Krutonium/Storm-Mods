@@ -163,8 +163,9 @@ namespace BetterRNG
             }
         }
 
+        //Out-of-context example of pressing E will catch a fish
         [Subscribe]
-        public void a(KeyPressedEvent @event)
+        public void KeyPressCallback(KeyPressedEvent @event)
         {
             if (BeganFishingGame)
             {
