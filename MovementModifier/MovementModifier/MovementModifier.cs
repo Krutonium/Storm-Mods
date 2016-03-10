@@ -18,7 +18,6 @@
 using System;
 using Storm;
 using Storm.ExternalEvent;
-using Storm.StardewValley;
 using Storm.StardewValley.Event;
 using Storm.StardewValley.Wrapper;
 
@@ -27,8 +26,6 @@ namespace MovementModifier
     [Mod]
     public class MovementModifier : DiskResource
     {
-        public static string ExecutionLocation { get; private set; }
-        public static string ConfigLocation { get; private set; }
         public static MovementConfig ModConfig { get; private set; }
 
         public static StaticContext TheGame { get; set; }

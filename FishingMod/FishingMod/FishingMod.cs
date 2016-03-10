@@ -69,7 +69,7 @@ namespace FishingMod
                 if (ModConfig.AlwaysPerfect)
                     Bobber.Perfect = true;
 
-                if (Bobber.DistanceFromCatching <= 0.05f)
+                if (Bobber.DistanceFromCatching <= 0.1f)
                     HitZero = true;
 
                 if (!Bobber.BobberInBar)

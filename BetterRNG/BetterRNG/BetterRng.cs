@@ -109,7 +109,7 @@ namespace BetterRNG
         #region FishingRng
 
        
-        [Subscribe]
+        //[Subscribe] //NYI
         public void PreUpdateCallback(PreUpdateEvent @event)
         {
             if (!ModConfig.EnableFishingTreasureOverride && !ModConfig.EnableFishingStuffOverride)
@@ -124,7 +124,7 @@ namespace BetterRNG
                 //Begin fishing game
                 if (!BeganFishingGame && UpdateIndex > 20)
                 {
-                    Console.WriteLine("BEGIN FISHING");
+                    //Console.WriteLine("BEGIN FISHING");
                     //Do these things once per fishing minigame, 1/3 second after it updates
                     //This will override anything from the FishingMod by me, and from any other mod that modifies these things before this
 
@@ -136,14 +136,14 @@ namespace BetterRNG
                         float baseDiff = Bobber.Difficulty;
                         Bobber.Difficulty *= (OneToFive.ChooseByRandom() + RandomFloats.Random().Abs());
                         float diffDiff = Bobber.Difficulty / baseDiff;
-                        Console.WriteLine("DIFFICULTY DIFFERENCE: " + diffDiff);
+                        //Console.WriteLine("DIFFICULTY DIFFERENCE: " + diffDiff);
 
-                        Console.WriteLine("PRE MIN/MAX: {0}/{1}", Bobber.MinFishSize, Bobber.MaxFishSize);
+                        //Console.WriteLine("PRE MIN/MAX: {0}/{1}", Bobber.MinFishSize, Bobber.MaxFishSize);
                         Bobber.MinFishSize = (int)Math.Round(Bobber.MinFishSize * RandomFloats.Random().Abs());
                         Bobber.MaxFishSize = (int)Math.Round(Bobber.MaxFishSize * (OneToFive.ChooseByRandom() + RandomFloats.Random().Abs()));
-                        Console.WriteLine("MIN/MAX: {0}/{1}", Bobber.MinFishSize, Bobber.MaxFishSize);
+                        //Console.WriteLine("MIN/MAX: {0}/{1}", Bobber.MinFishSize, Bobber.MaxFishSize);
                         Bobber.FishSize = Twister.Next(Bobber.MinFishSize, Bobber.MaxFishSize);
-                        Console.WriteLine("SET SIZE TO: " + Bobber.FishSize);
+                        //Console.WriteLine("SET SIZE TO: " + Bobber.FishSize);
                         if (@event.EventBus.mods.Exists(x => x.Author == "Zoryn" && x.Name == "Quality Extender"))
                             @event.Root.ActiveClickableMenu.ToBobberBar().FishQuality = OneToTen.ChooseByRandom();
                         else
@@ -153,18 +153,18 @@ namespace BetterRNG
                     BeganFishingGame = true;
                 }
 
-                if (UpdateIndex % 60 == 0)
-                    Console.WriteLine(UpdateIndex + " - "  + @event.Root.ActiveClickableMenu.ToBobberBar().FishSize);
+                //if (UpdateIndex % 60 == 0)
+                    //Console.WriteLine(UpdateIndex + " - "  + @event.Root.ActiveClickableMenu.ToBobberBar().FishSize);
 
                 UpdateIndex++;
 
-                if (@event.Root.ActiveClickableMenu.ToBobberBar().DistanceFromCatching <= 0.05f)
+                if (@event.Root.ActiveClickableMenu.ToBobberBar().DistanceFromCatching <= 0.1f)
                     HitZero = true;
             }
         }
 
         //Out-of-context example of pressing E will catch a fish
-        [Subscribe]
+        //[Subscribe]  //Not actually a part of mod
         public void KeyPressCallback(KeyPressedEvent @event)
         {
             if (BeganFishingGame)
@@ -177,7 +177,7 @@ namespace BetterRNG
         [Subscribe]
         public void PostDoneFishingCallback(PostDoneFishingEvent @event)
         {
-            Console.WriteLine("END FISHING");
+            //Console.WriteLine("END FISHING");
             //End fishing game
             BeganFishingGame = false;
             UpdateIndex = 0;
@@ -226,20 +226,25 @@ namespace BetterRNG
 
         public override Config GenerateBaseConfig(Config baseConfig)
         {
-            EnableDailyLuckOverride = true;
-            EnableWeatherOverride = true;
+            EnableDailyLuckOverride = false;
+            EnableWeatherOverride = false;
             SunnyChance = 0.60f;
             CloudySnowyChance = 0.15f;
             RainyChance = 0.15f;
             StormyChance = 0.05f;
             HarshSnowyChance = 0.05f;
 
-            EnableFishingTreasureOverride = true;
+            EnableFishingTreasureOverride = false;
             FishingTreasureChance = 1 / 16f;
-            EnableFishingStuffOverride = true;
+            EnableFishingStuffOverride = false;
             return this;
         }
     }
+
+
+
+
+
 
 
     public static class Extensions

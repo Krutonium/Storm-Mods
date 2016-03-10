@@ -85,12 +85,12 @@ namespace RegenMod
 
         public override Config GenerateBaseConfig(Config baseConfig)
         {
-            RegenStamina = true;
-            RegenStaminaOnlyWhileStill = true;
+            RegenStamina = false;
+            RegenStaminaOnlyWhileStill = false;
             RegenStaminaPerSecond = 0.25f;
 
-            RegenHealth = true;
-            RegenHealthOnlyWhileStill = true;
+            RegenHealth = false;
+            RegenHealthOnlyWhileStill = false;
             RegenHealthPerSecond = 0.25f;
 
             return this;
