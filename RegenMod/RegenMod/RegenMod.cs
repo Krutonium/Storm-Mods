@@ -39,7 +39,7 @@ namespace RegenMod
 
                     if (HealthFloat > 1)
                     {
-                        @event.LocalPlayer.Health += 1;
+                        @event.LocalPlayer.Health = @event.LocalPlayer.Health >= @event.LocalPlayer.MaxHealth ? @event.LocalPlayer.MaxHealth : @event.LocalPlayer.Health + 1;
                         HealthFloat -= 1;
                     }
                 }
@@ -53,7 +53,7 @@ namespace RegenMod
 
                     if (StaminaFloat > 1)
                     {
-                        @event.LocalPlayer.Stamina += 1;
+                        @event.LocalPlayer.Stamina = @event.LocalPlayer.Stamina >= @event.LocalPlayer.MaxStamina ? @event.LocalPlayer.MaxStamina : @event.LocalPlayer.Stamina + 1;
                         StaminaFloat -= 1;
                     }
                 }
@@ -87,7 +87,7 @@ namespace RegenMod
         {
             RegenStamina = true;
             RegenStaminaOnlyWhileStill = true;
-            RegenStaminaPerSecond = 0.5f;
+            RegenStaminaPerSecond = 0.25f;
 
             RegenHealth = true;
             RegenHealthOnlyWhileStill = true;

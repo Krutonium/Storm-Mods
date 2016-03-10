@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
+using Microsoft.Xna.Framework.Input;
 using Storm;
 using Storm.ExternalEvent;
 using Storm.StardewValley;
@@ -18,11 +20,6 @@ namespace BetterRNG
 
         public static RngConfig ModConfig { get; private set; }
         public static bool JustLoadedGame { get; private set; }
-
-        public static StaticContext TheGame { get; set; }
-
-        public static ClickableMenu ActiveMenu => TheGame.ActiveClickableMenu;
-        public static BobberBar Bobber => ActiveMenu.ToBobberBar();
 
         #region Fishing
 
@@ -52,13 +49,11 @@ namespace BetterRNG
             //Determine base RNG to get everything up and running.
             DetermineRng(@event);
 
-            TheGame = @event.Root;
-
             OneToThree = new[] {ProportionValue.Create(80, 1), ProportionValue.Create(15, 2), ProportionValue.Create(5, 3)};
             OneToFive = new[] {ProportionValue.Create(80, 1), ProportionValue.Create(15, 2), ProportionValue.Create(3, 3), ProportionValue.Create(1.9f, 4), ProportionValue.Create(0.1f, 5)};
             OneToTen = new[] { ProportionValue.Create(80, 1), ProportionValue.Create(13, 2), ProportionValue.Create(3, 3), ProportionValue.Create(2, 4), ProportionValue.Create(1, 5),
                 ProportionValue.Create(0.5f, 6), ProportionValue.Create(0.25f, 7), ProportionValue.Create(0.15f, 8), ProportionValue.Create(0.09f, 9), ProportionValue.Create(0.01f, 10)};
-
+            
             Console.WriteLine("BetterRng by Zoryn => Initialization Completed");
         }
 
@@ -114,55 +109,79 @@ namespace BetterRNG
         #region FishingRng
 
        
-
+        [Subscribe]
         public void PreUpdateCallback(PreUpdateEvent @event)
         {
             if (!ModConfig.EnableFishingTreasureOverride && !ModConfig.EnableFishingStuffOverride)
                 return;
 
-            if (ActiveMenu == null)
+            if (@event.Root.ActiveClickableMenu == null)
                 return;
 
-            if (ActiveMenu.IsBobberBar() && !HitZero)
+            if (@event.Root.ActiveClickableMenu.IsBobberBar() && !HitZero)
             {
+                BobberBar Bobber = @event.Root.ActiveClickableMenu.ToBobberBar();
                 //Begin fishing game
                 if (!BeganFishingGame && UpdateIndex > 20)
                 {
+                    Console.WriteLine("BEGIN FISHING");
                     //Do these things once per fishing minigame, 1/3 second after it updates
                     //This will override anything from the FishingMod by me, and from any other mod that modifies these things before this
 
                     if (ModConfig.EnableFishingTreasureOverride)
-                        Bobber.Treasure = Twister.NextComplexBool(RandomFloats);
+                        @event.Root.ActiveClickableMenu.ToBobberBar().Treasure = Twister.NextBool();
 
                     if (ModConfig.EnableFishingStuffOverride)
                     {
-                        Bobber.Difficulty = Twister.Next(15, 125);
+                        float baseDiff = Bobber.Difficulty;
+                        Bobber.Difficulty *= (OneToFive.ChooseByRandom() + RandomFloats.Random().Abs());
+                        float diffDiff = Bobber.Difficulty / baseDiff;
+                        Console.WriteLine("DIFFICULTY DIFFERENCE: " + diffDiff);
+
+                        Console.WriteLine("PRE MIN/MAX: {0}/{1}", Bobber.MinFishSize, Bobber.MaxFishSize);
                         Bobber.MinFishSize = (int)Math.Round(Bobber.MinFishSize * RandomFloats.Random().Abs());
-                        Bobber.MaxFishSize = (int)Math.Round(Bobber.MinFishSize * (OneToFive.ChooseByRandom() + RandomFloats.Random().Abs()));
+                        Bobber.MaxFishSize = (int)Math.Round(Bobber.MaxFishSize * (OneToFive.ChooseByRandom() + RandomFloats.Random().Abs()));
+                        Console.WriteLine("MIN/MAX: {0}/{1}", Bobber.MinFishSize, Bobber.MaxFishSize);
                         Bobber.FishSize = Twister.Next(Bobber.MinFishSize, Bobber.MaxFishSize);
+                        Console.WriteLine("SET SIZE TO: " + Bobber.FishSize);
                         if (@event.EventBus.mods.Exists(x => x.Author == "Zoryn" && x.Name == "Quality Extender"))
-                            Bobber.FishQuality = OneToTen.ChooseByRandom();
+                            @event.Root.ActiveClickableMenu.ToBobberBar().FishQuality = OneToTen.ChooseByRandom();
                         else
-                            Bobber.FishQuality = OneToThree.ChooseByRandom();
+                            @event.Root.ActiveClickableMenu.ToBobberBar().FishQuality = OneToThree.ChooseByRandom() - 1;
                     }
 
                     BeganFishingGame = true;
                 }
 
-                if (UpdateIndex < 20)
-                    UpdateIndex++;
+                if (UpdateIndex % 60 == 0)
+                    Console.WriteLine(UpdateIndex + " - "  + @event.Root.ActiveClickableMenu.ToBobberBar().FishSize);
 
-                if (Bobber.DistanceFromCatching <= 0.05f)
+                UpdateIndex++;
+
+                if (@event.Root.ActiveClickableMenu.ToBobberBar().DistanceFromCatching <= 0.05f)
                     HitZero = true;
             }
-            else
+        }
+
+        [Subscribe]
+        public void a(KeyPressedEvent @event)
+        {
+            if (BeganFishingGame)
             {
-                //End fishing game
-                BeganFishingGame = false;
-                UpdateIndex = 0;
-                HitZero = false;
+                if (@event.Key == Keys.E)
+                    @event.Root.ActiveClickableMenu.ToBobberBar().DistanceFromCatching = 10;
             }
-        } 
+        }
+
+        [Subscribe]
+        public void PostDoneFishingCallback(PostDoneFishingEvent @event)
+        {
+            Console.WriteLine("END FISHING");
+            //End fishing game
+            BeganFishingGame = false;
+            UpdateIndex = 0;
+            HitZero = false;
+        }
 
         #endregion
 
@@ -176,6 +195,12 @@ namespace BetterRNG
                 ModConfig = new RngConfig();
                 ModConfig = (RngConfig)Config.InitializeConfig(Config.GetBasePath(this), ModConfig);
             }
+        }
+
+        [Subscribe]
+        public void a(PreHoeDirtCanPlantEvent @event)
+        {
+            Console.WriteLine("[{0}] CROP: {1} - NULL: {2}", System.DateTime.Now, @event.HoeDirt?.Crop, @event.HoeDirt?.Crop == null);
         }
 
         public static StaticContext GetGame(StaticContextEvent @event)
