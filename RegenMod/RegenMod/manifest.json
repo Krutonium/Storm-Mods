@@ -1,7 +1,7 @@
 ﻿{
     "displayName": "Regen Mod",
-    "author": "Zoryn Aaron",
-    "version": "1.2",
+    "author": "Zoryn",
+    "version": "1.3",
     "description": "Alters regeneration based on Config file.",
 
     "assemblyFileName": "RegenMod.dll"

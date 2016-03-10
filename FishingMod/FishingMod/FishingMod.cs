@@ -12,23 +12,22 @@ namespace FishingMod
     [Mod]
     public class LessFishingLoss : DiskResource
     {
-        public ClickableMenu ActiveMenu => StaticGameContext.WrappedGame.ActiveClickableMenu;
-
-        public BobberBarAccessor BobberAcc => (BobberBarAccessor)StaticGameContext.WrappedGame.ActiveClickableMenu.Expose();
-
-        public BobberBar Bobber => new BobberBar(StaticGameContext.WrappedGame, BobberAcc);
+        public static StaticContext TheGame { get; private set; }
+        public static Farmer Player => TheGame.Player;
+        public static ClickableMenu ActiveMenu => TheGame.ActiveClickableMenu;
+        public static BobberBar Bobber => TheGame.ActiveClickableMenu.ToBobberBar();
 
         public static bool BeganFishingGame { get; protected set; }
         public static int UpdateIndex { get; protected set; }
         public static bool HitZero { get; protected set; }
-
-        public static Farmer Player => StaticGameContext.WrappedGame.Player;
 
         public static FishConfig ModConfig { get; protected set; }
 
         [Subscribe]
         public void InitializeCallback(InitializeEvent @event)
         {
+            TheGame = @event.Root;
+
             ModConfig = new FishConfig();
             ModConfig = (FishConfig)Config.InitializeConfig(Config.GetBasePath(this), ModConfig);
 
@@ -86,7 +85,7 @@ namespace FishingMod
         }
 
         [Subscribe]
-        public void DoneFishing(BeforeDoneFishingEvent @event)
+        public void DoneFishing(PreDoneFishingEvent @event)
         {
             if (!ModConfig.StaminaLossMultiplier.Equals(1))
             {
@@ -106,7 +105,7 @@ namespace FishingMod
         }
 
         [Subscribe]
-        public void BeforePullFishFromWaterCallback(BeforePullFishFromWaterEvent @event)
+        public void BeforePullFishFromWaterCallback(PrePullFishFromWaterEvent @event)
         {
             FishingRod f = @event.Rod;
 

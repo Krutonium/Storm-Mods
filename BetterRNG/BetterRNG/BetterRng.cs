@@ -19,18 +19,19 @@ namespace BetterRNG
         public static RngConfig ModConfig { get; private set; }
         public static bool JustLoadedGame { get; private set; }
 
+        public static StaticContext TheGame { get; set; }
+
+        public static ClickableMenu ActiveMenu => TheGame.ActiveClickableMenu;
+        public static BobberBar Bobber => ActiveMenu.ToBobberBar();
+
         #region Fishing
 
         public static bool BeganFishingGame { get; protected set; }
         public static int UpdateIndex { get; protected set; }
         public static bool HitZero { get; protected set; }
+        public IEnumerable<ProportionValue<Int32>> OneToThree { get; protected set; }
         public IEnumerable<ProportionValue<Int32>> OneToFive { get; protected set; }
-
-        public ClickableMenu ActiveMenu => StaticGameContext.WrappedGame.ActiveClickableMenu;
-
-        public BobberBarAccessor BobberAcc => (BobberBarAccessor)StaticGameContext.WrappedGame.ActiveClickableMenu.Expose();
-
-        public BobberBar Bobber => new BobberBar(StaticGameContext.WrappedGame, BobberAcc);
+        public IEnumerable<ProportionValue<Int32>> OneToTen { get; protected set; }
 
         #endregion
 
@@ -41,7 +42,7 @@ namespace BetterRNG
             ModConfig = (RngConfig)Config.InitializeConfig(Config.GetBasePath(this), ModConfig);
             RandomFloats = new float[256];
             Twister = new MersenneTwister();
-
+            
             //Destroys the game's built-in random number generator for Twister.
             @event.Root.Random = Twister;
 
@@ -51,7 +52,12 @@ namespace BetterRNG
             //Determine base RNG to get everything up and running.
             DetermineRng(@event);
 
+            TheGame = @event.Root;
+
+            OneToThree = new[] {ProportionValue.Create(80, 1), ProportionValue.Create(15, 2), ProportionValue.Create(5, 3)};
             OneToFive = new[] {ProportionValue.Create(80, 1), ProportionValue.Create(15, 2), ProportionValue.Create(3, 3), ProportionValue.Create(1.9f, 4), ProportionValue.Create(0.1f, 5)};
+            OneToTen = new[] { ProportionValue.Create(80, 1), ProportionValue.Create(13, 2), ProportionValue.Create(3, 3), ProportionValue.Create(2, 4), ProportionValue.Create(1, 5),
+                ProportionValue.Create(0.5f, 6), ProportionValue.Create(0.25f, 7), ProportionValue.Create(0.15f, 8), ProportionValue.Create(0.09f, 9), ProportionValue.Create(0.01f, 10)};
 
             Console.WriteLine("BetterRng by Zoryn => Initialization Completed");
         }
@@ -59,7 +65,7 @@ namespace BetterRNG
         #region Daily RNG
 
         [Subscribe]
-        public void AfterGameLoadedCallback(AfterGameLoadedEvent @event)
+        public void AfterGameLoadedCallback(PostGameLoadedEvent @event)
         {
             JustLoadedGame = true;
         }
@@ -76,7 +82,7 @@ namespace BetterRNG
         }
 
         [Subscribe]
-        public void AfterNewDayCallback(AfterNewDayEvent @event)
+        public void AfterNewDayCallback(PostNewDayEvent @event)
         {
             DetermineRng(@event);
         }
@@ -92,7 +98,10 @@ namespace BetterRNG
             if (weatherConfig.Sum() >= 0.99f && weatherConfig.Sum() <= 1.01f)
             {
                 var floats = new[] { ProportionValue.Create(ModConfig.SunnyChance, 0), ProportionValue.Create(ModConfig.CloudySnowyChance, 2), ProportionValue.Create(ModConfig.RainyChance, 1), ProportionValue.Create(ModConfig.StormyChance, 3), ProportionValue.Create(ModConfig.HarshSnowyChance, 5) };
-                @event.Root.WeatherForTomorrow = floats.ChooseByRandom();
+                int targWeather = floats.ChooseByRandom();
+                if (targWeather == 5 && @event.Root.CurrentSeason != "winter")
+                    targWeather = 3;
+                @event.Root.WeatherForTomorrow = targWeather;
             }
             else
                 Console.WriteLine("Could not set weather because the config values do not add up to 1.0 ({0}).\n\tPlease correct this error in: " + ModConfig.ConfigLocation, weatherConfig.Sum());
@@ -131,6 +140,10 @@ namespace BetterRNG
                         Bobber.MinFishSize = (int)Math.Round(Bobber.MinFishSize * RandomFloats.Random().Abs());
                         Bobber.MaxFishSize = (int)Math.Round(Bobber.MinFishSize * (OneToFive.ChooseByRandom() + RandomFloats.Random().Abs()));
                         Bobber.FishSize = Twister.Next(Bobber.MinFishSize, Bobber.MaxFishSize);
+                        if (@event.EventBus.mods.Exists(x => x.Author == "Zoryn" && x.Name == "Quality Extender"))
+                            Bobber.FishQuality = OneToTen.ChooseByRandom();
+                        else
+                            Bobber.FishQuality = OneToThree.ChooseByRandom();
                     }
 
                     BeganFishingGame = true;
@@ -163,6 +176,11 @@ namespace BetterRNG
                 ModConfig = new RngConfig();
                 ModConfig = (RngConfig)Config.InitializeConfig(Config.GetBasePath(this), ModConfig);
             }
+        }
+
+        public static StaticContext GetGame(StaticContextEvent @event)
+        {
+            return @event.Root;
         }
     }
 

@@ -28,7 +28,7 @@ namespace RegenMod
         [Subscribe]
         public void UpdateCallback(PreUpdateEvent @event)
         {
-            if (@event.LocalPlayer.Expose()?._GetName() == string.Empty)
+            if (@event.LocalPlayer.Expose() == null)
                 return;
 
             if (ModConfig.RegenHealth)

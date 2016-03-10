@@ -1,0 +1,8 @@
+﻿{
+    "displayName": "Quality Extender",
+    "author": "Zoryn",
+    "version": "1.2",
+    "description": "Extends item qualities up to level 10.",
+
+    "assemblyFileName": "QualityExtender.dll"
+}

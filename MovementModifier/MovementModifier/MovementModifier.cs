@@ -31,11 +31,14 @@ namespace MovementModifier
         public static string ConfigLocation { get; private set; }
         public static MovementConfig ModConfig { get; private set; }
 
-        public static Farmer Player => StaticGameContext.WrappedGame.Player;
+        public static StaticContext TheGame { get; set; }
+        public static Farmer Player => TheGame.Player;
 
         [Subscribe]
         public void InitializeCallback(InitializeEvent @event)
         {
+            TheGame = @event.Root;
+
             ModConfig = new MovementConfig();
             ModConfig = (MovementConfig) Config.InitializeConfig(Config.GetBasePath(this), ModConfig);
 
